@@ -45,6 +45,40 @@ def handle_hello():
 
     return jsonify(response_body), 200
 
+@app.route('/users/all', methods=['GET'])
+def handle_get_all():
+    all_users = User.query.all()
+
+    all_users = list(map(lambda user: user.serialize(), all_users))
+
+    print(all_users)
+
+    return jsonify(all_users),200
+
+@app.route('/users/all/<int:id>', methods=['GET'])
+def handle_get_user_by_id(id):
+    user = User.query.get(id)
+
+    if user is not None:
+         user = user.serialize()
+         return jsonify(user), 200
+
+    return jsonify({'er_msg': 'user_not_found'}),200
+
+@app.route('/users/all/delete/<int:id>', methods=['DELETE'])
+def handle_delete_user_by_id(id):
+    user = User.query.get(id)
+
+    if user is None:
+        return jsonify({'er_msg': 'user_not_found'}), 404
+
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify(user.serialize()), 200
+
+   
+
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
